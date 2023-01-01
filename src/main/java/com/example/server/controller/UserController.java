@@ -1,6 +1,7 @@
 package com.example.server.controller;
 
 import com.example.server.common.ResponseHandler;
+import com.example.server.controller.dto.SignInRequest;
 import com.example.server.controller.dto.SignUpRequest;
 import com.example.server.controller.dto.UserResponse;
 import com.example.server.service.UserService;
@@ -24,6 +25,12 @@ public class UserController {
     public ResponseEntity<Object> singUp(@RequestBody SignUpRequest request){
         UserResponse data = userService.signUp(request);
         return ResponseHandler.generateResponse("회원가입이 완료되었습니다.",HttpStatus.CREATED,data);
+    }
+
+    @PostMapping("/sign-in")
+    public ResponseEntity<Object> singIn(@RequestBody SignInRequest request){
+        UserResponse data = userService.signIn(request);
+        return ResponseHandler.generateResponse("로그인이 완료되었습니다.",HttpStatus.OK,data);
     }
 
 }
