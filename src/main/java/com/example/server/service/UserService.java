@@ -3,6 +3,7 @@ package com.example.server.service;
 import com.example.server.controller.dto.SignUpRequest;
 import com.example.server.controller.dto.UserResponse;
 import com.example.server.entity.User;
+import com.example.server.exception.InvalidArgumentException;
 import com.example.server.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,6 +32,21 @@ public class UserService {
     }
 
     public UserResponse signUp(SignUpRequest request){
+        if(!isValidUserName(request.getUserName())){
+            throw new InvalidArgumentException("이미 존재하는 이름입니다.");
+        }
+        if(!isValidPassword(request.getPassword(), request.getPasswordCheck())){
+            throw new InvalidArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+        User newUser = User
+            .builder()
+            .userName(request.getUserName())
+            .password(passwordEncoder.encode(request.getPassword()))
+            .build();
+        return UserResponse.of(userRepository.save(newUser));
+    }
+
+    public UserResponse signIn(SignUpRequest request){
         if(!isValidUserName(request.getUserName())){
             throw new RuntimeException();
         }
