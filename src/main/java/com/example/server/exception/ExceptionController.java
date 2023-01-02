@@ -15,15 +15,10 @@ public class ExceptionController {
         return ResponseHandler.generateResponse(ex.getMessage(), HttpStatus.BAD_REQUEST,null);
     }
 
-    @ExceptionHandler(ExpiredAccessException.class)
-    public ResponseEntity<Object> handleExpiredAccessException(Exception ex) {
+    @ExceptionHandler(RefreshFailException.class)
+    public ResponseEntity<Object> handleRefreshFailException(Exception ex) {
         ex.printStackTrace();
-        return ResponseHandler.generateResponse(ex.getMessage(), HttpStatus.FORBIDDEN,null);
+        return ResponseHandler.generateResponse(ex.getMessage(), HttpStatus.BAD_REQUEST,null);
     }
 
-    @ExceptionHandler(InvalidUserException.class)
-    public ResponseEntity<Object> handleInvalidUserException(Exception ex) {
-        ex.printStackTrace();
-        return ResponseHandler.generateResponse(ex.getMessage(), HttpStatus.FORBIDDEN,null);
-    }
 }

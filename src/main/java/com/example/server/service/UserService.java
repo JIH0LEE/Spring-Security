@@ -5,7 +5,6 @@ import com.example.server.controller.dto.SignUpRequest;
 import com.example.server.controller.dto.UserResponse;
 import com.example.server.entity.User;
 import com.example.server.exception.InvalidArgumentException;
-import com.example.server.exception.InvalidUserException;
 import com.example.server.repository.UserRepository;
 import java.util.Arrays;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,6 +45,7 @@ public class UserService implements UserDetailsService {
         }
         User newUser = User
             .builder()
+            .userName(request.getUserName())
             .nickName(request.getUserName())
             .password(passwordEncoder.encode(request.getPassword()))
             .roles(Arrays.asList("ROLE_USER"))
@@ -62,9 +62,18 @@ public class UserService implements UserDetailsService {
         return UserResponse.of(user);
     }
 
+    public void refreshToken(UserResponse userResponse,String refreshToken){
+        User user = getByUserName(userResponse.getUsername());
+        user.changeRefreshToken(refreshToken);
+    }
+
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findUserByNickName(username)
-            .orElseThrow(() -> new InvalidUserException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+    }
+
+    public User getByUserName(String name){
+        return userRepository.findByUserName(name).orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
     }
 }

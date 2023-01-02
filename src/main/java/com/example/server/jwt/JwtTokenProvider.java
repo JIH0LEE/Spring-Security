@@ -1,8 +1,9 @@
 package com.example.server.jwt;
 
+import com.example.server.controller.dto.RefreshRequest;
+import com.example.server.controller.dto.SingInResponse;
+import com.example.server.controller.dto.UserResponse;
 import com.example.server.entity.User;
-import com.example.server.exception.ExpiredAccessException;
-import com.example.server.exception.InvalidUserException;
 import com.example.server.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -19,6 +20,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
+
 
 @RequiredArgsConstructor
 @Component
@@ -61,7 +64,7 @@ public class JwtTokenProvider {
             .compact();
     }
     // JWT 토큰에서 인증 정보 조회
-    public Authentication getAuthentication(String token) throws InvalidUserException{
+    public Authentication getAuthentication(String token){
         UserDetails userDetails = userService.loadUserByUsername(this.getUserPk(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
@@ -78,9 +81,24 @@ public class JwtTokenProvider {
 
     // 토큰의 유효성 + 만료일자 확인
     public boolean validateToken(String jwtToken) throws ExpiredJwtException,Exception {
-
         Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
         return !claims.getBody().getExpiration().before(new Date());
+    }
 
+    @Transactional
+    public SingInResponse refreshToken(RefreshRequest refreshRequest){
+        String userName = getUserPk(refreshRequest.getAccessToken());
+        User user = userService.getByUserName(userName);
+        if(user.getRefreshToken().equals(refreshRequest.getRefreshToken())){
+            String accessToken = createAccessToken(user.getUsername(),user.getRoles());
+            String refreshToken = createRefreshToken();
+            user.changeRefreshToken(refreshToken);
+            UserResponse userInfo = UserResponse.of(user);
+            SingInResponse data = SingInResponse.of(userInfo,accessToken,refreshToken);
+            return data;
+        }
+        else{
+            return null;
+        }
     }
 }
