@@ -5,6 +5,7 @@ import com.example.server.controller.dto.SignUpRequest;
 import com.example.server.controller.dto.UserResponse;
 import com.example.server.entity.User;
 import com.example.server.exception.InvalidArgumentException;
+import com.example.server.exception.InvalidUserException;
 import com.example.server.repository.UserRepository;
 import java.util.Arrays;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -64,6 +65,6 @@ public class UserService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findUserByNickName(username)
-            .orElseThrow(() -> new UsernameNotFoundException("사용자를 찾을 수 없습니다."));
+            .orElseThrow(() -> new InvalidUserException("사용자를 찾을 수 없습니다."));
     }
 }

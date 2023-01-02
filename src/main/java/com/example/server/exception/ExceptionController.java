@@ -14,4 +14,16 @@ public class ExceptionController {
         ex.printStackTrace();
         return ResponseHandler.generateResponse(ex.getMessage(), HttpStatus.BAD_REQUEST,null);
     }
+
+    @ExceptionHandler(ExpiredAccessException.class)
+    public ResponseEntity<Object> handleExpiredAccessException(Exception ex) {
+        ex.printStackTrace();
+        return ResponseHandler.generateResponse(ex.getMessage(), HttpStatus.FORBIDDEN,null);
+    }
+
+    @ExceptionHandler(InvalidUserException.class)
+    public ResponseEntity<Object> handleInvalidUserException(Exception ex) {
+        ex.printStackTrace();
+        return ResponseHandler.generateResponse(ex.getMessage(), HttpStatus.FORBIDDEN,null);
+    }
 }

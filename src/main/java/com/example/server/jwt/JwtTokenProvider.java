@@ -1,6 +1,8 @@
 package com.example.server.jwt;
 
 import com.example.server.entity.User;
+import com.example.server.exception.ExpiredAccessException;
+import com.example.server.exception.InvalidUserException;
 import com.example.server.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -24,7 +26,7 @@ public class JwtTokenProvider {
     private String secretKey = "secretkey";
 
     // 토큰 유효시간 30분,60분
-    private long accessTokenTime = 30 * 60 * 1000L;
+    private long accessTokenTime = 1 * 60 * 1000L;
     private long refreshTokenTime = 60 * 60 * 1000L;
 
     private final UserService userService;
@@ -59,7 +61,7 @@ public class JwtTokenProvider {
             .compact();
     }
     // JWT 토큰에서 인증 정보 조회
-    public Authentication getAuthentication(String token) {
+    public Authentication getAuthentication(String token) throws InvalidUserException{
         UserDetails userDetails = userService.loadUserByUsername(this.getUserPk(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
@@ -75,14 +77,10 @@ public class JwtTokenProvider {
     }
 
     // 토큰의 유효성 + 만료일자 확인
-    public boolean validateToken(String jwtToken) {
-        try {
-            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
-            return !claims.getBody().getExpiration().before(new Date());
-        } catch(ExpiredJwtException e) {
-            return true;
-        } catch (Exception e) {
-            return false;
-        }
+    public boolean validateToken(String jwtToken) throws ExpiredJwtException,Exception {
+
+        Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
+        return !claims.getBody().getExpiration().before(new Date());
+
     }
 }
