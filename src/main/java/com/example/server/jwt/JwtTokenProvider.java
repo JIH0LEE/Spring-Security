@@ -1,5 +1,6 @@
 package com.example.server.jwt;
 
+import com.example.server.entity.User;
 import com.example.server.service.UserService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -35,8 +36,8 @@ public class JwtTokenProvider {
     }
 
     // JWT Access 토큰 생성
-    public String createAccessToken(String userPk, List<String> roles) {
-        Claims claims = Jwts.claims().setSubject(userPk); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣는다.
+    public String createAccessToken(String nickName,List<String> roles) {
+        Claims claims = Jwts.claims().setSubject(nickName); // JWT payload 에 저장되는 정보단위, 보통 여기서 user를 식별하는 값을 넣는다.
         claims.put("roles", roles); // 정보는 key / value 쌍으로 저장된다.
         Date now = new Date();
         return Jwts.builder()
